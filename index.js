@@ -1,9 +1,10 @@
 const inquirer = require("inquirer");
+const path = require("path");
 const fs = require("fs");
-const employee = require("./lib/employee");
-const manager = require("./lib/manager");
-const engineer = require("./lib/engineer");
-const intern = require("./lib/intern");
+const Manager = require("./lib/Manager");
+const Engineer = require("./lib/Engineer");
+const Intern = require("./lib/Intern");
+const template = require("./src/template");
 
 let team = [];
 
@@ -12,33 +13,7 @@ function init() {
     
     console.log(`\x1b[36m### Team Profile Generator ###\x1b[0m\n`)
 
-    addTeamMember();
-}
-
-function addTeamMember () {
-    inquirer
-        .prompt([{
-            type: "list",
-            message: "Please select the type of employee you would like to add.",
-            name: "employeeType",
-            choices: ["Manager", "Engineer", "Intern", "I am done"],
-        }])
-        .then(data => {
-            switch(data.employeeType) {
-                case "Manager":
-                    addManager();
-                    break;
-                case "Engineer":
-                    addEngineer();
-                    break;
-                case "Intern":
-                    addIntern();
-                    break;
-                default:
-                    createHtml();
-                    break;
-            }
-        })
+    addManager();
 }
 
 function addManager () {
@@ -66,10 +41,55 @@ function addManager () {
             }
         ]).then(data => {
             const {name, id, email, officeNumber} = data;
-            const mgr = new manager(name, id, email, officeNumber);
+            const mgr = new Manager(name, id, email, officeNumber);
             team.push(mgr);
             console.log(team);
             addTeamPrompt();
+        })
+}
+
+function addTeamPrompt() {
+    console.clear();
+    
+    console.log("So far you have added:");
+    for (let i in team) {
+        console.log(`${team[i].getRole()}: ${team[i].getName()}`);
+    }
+    inquirer
+        .prompt([{
+            type: "list",
+            message: "Would you like to add more team members?",
+            name: "addMore",
+            choices: ["Yes", "No"],
+        }]).then(data => {
+            if (data.addMore == "Yes") {
+                addTeamMember();
+            } else {
+                createHtml();
+            };
+        });
+}
+
+function addTeamMember () {
+    inquirer
+        .prompt([{
+            type: "list",
+            message: "Please select the type of employee you would like to add.",
+            name: "employeeType",
+            choices: ["Engineer", "Intern", "I am done"],
+        }])
+        .then(data => {
+            switch(data.employeeType) {
+                case "Engineer":
+                    addEngineer();
+                    break;
+                case "Intern":
+                    addIntern();
+                    break;
+                default:
+                    createHtml();
+                    break;
+            }
         })
 }
 
@@ -98,7 +118,7 @@ function addEngineer () {
             }
         ]).then(data => {
             const {name, id, email, github} = data;
-            const eng = new engineer(name, id, email, github);
+            const eng = new Engineer(name, id, email, github);
             team.push(eng);
             console.log(team);
             addTeamPrompt();
@@ -130,37 +150,20 @@ function addIntern () {
             }
         ]).then(data => {
             const {name, id, email, school} = data;
-            const int = new intern(name, id, email, school);
+            const int = new Intern(name, id, email, school);
             team.push(int);
             // console.log(team);
             addTeamPrompt();
         })
 }
 
-function addTeamPrompt() {
-    console.clear();
-    
-    console.log("So far you have added:");
-    for (let i in team) {
-        console.log(`${team[i].getRole()}: ${team[i].getName()}`);
-    }
-    inquirer
-        .prompt([{
-            type: "list",
-            message: "Would you like to add more team members?",
-            name: "addMore",
-            choices: ["Yes", "No"],
-        }]).then(data => {
-            if (data.addMore == "Yes") {
-                addTeamMember();
-            } else {
-                createHtml();
-            };
-        });
-}
-
 function createHtml() {
-    
+    const html = template(team);
+    let dir = "./dist";
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir);
+
+    fs.writeFile(
+        `${dir}/team.html`, html, (err) => err ? console.log(err) : console.log('team.html has successfully been generated in /dist.'));
 }
 
 init();
