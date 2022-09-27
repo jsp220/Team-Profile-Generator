@@ -43,7 +43,7 @@ function addManager () {
             const {name, id, email, officeNumber} = data;
             const mgr = new Manager(name, id, email, officeNumber);
             team.push(mgr);
-            console.log(team);
+            // console.log(team);
             addTeamPrompt();
         })
 }
@@ -53,7 +53,7 @@ function addTeamPrompt() {
     
     console.log("So far you have added:");
     for (let i in team) {
-        console.log(`${team[i].getRole()}: ${team[i].getName()}`);
+        console.log(`${team[i].getRole()}: ${team[i].getName()}  ID: ${team[i].getId()}`);
     }
     inquirer
         .prompt([{
@@ -120,7 +120,7 @@ function addEngineer () {
             const {name, id, email, github} = data;
             const eng = new Engineer(name, id, email, github);
             team.push(eng);
-            console.log(team);
+            // console.log(team);
             addTeamPrompt();
         })
 }
@@ -162,8 +162,16 @@ function createHtml() {
     let dir = "./dist";
     if (!fs.existsSync(dir)) fs.mkdirSync(dir);
 
+    fs.writeFile(`${dir}/team.html`, html, (err) => 
+        err ? console.log(err) : console.log("team.html has successfully been generated in /dist."));
+
     fs.writeFile(
-        `${dir}/team.html`, html, (err) => err ? console.log(err) : console.log('team.html has successfully been generated in /dist.'));
+        `${dir}/style.css`, 
+`.gray {
+    background-color: lightgray;
+}`,
+        err => err ? console.log(err) : console.log("style.css has successfully been generated in /dist."))
+
 }
 
 init();
