@@ -94,7 +94,7 @@ module.exports = team => {
         crossorigin="anonymous"
     />
     <link rel="stylesheet" href="./style.css" />
-    <title>Document</title>
+    <title>Team</title>
 </head>
 
 <body>
